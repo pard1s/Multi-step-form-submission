@@ -85,7 +85,7 @@ export const ResumeFormSchema = z.object({
 
   experiences: z.array(WorkExperienceSchema).max(30).default([]),
 
-  education: z.array(EducationItemSchema).max(20),
+  education: z.array(EducationItemSchema).max(20).default([]),
 });
 
 export type ResumeFormData = z.infer<typeof ResumeFormSchema>;
@@ -100,6 +100,9 @@ export const StepPersonalSchema = ResumeFormSchema.pick({
 export const StepWorkExperienceAndEducationSchema = ResumeFormSchema.pick({
   experiences: true,
   education: true,
+}).extend({
+  experiences: z.array(WorkExperienceSchema).default([]),
+  education: z.array(EducationItemSchema).default([]),
 });
 
 export const StepSkillsLangSchema = ResumeFormSchema.pick({

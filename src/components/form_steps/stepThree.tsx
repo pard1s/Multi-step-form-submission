@@ -3,22 +3,20 @@
 import * as React from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Form,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormStore } from "@/lib/store";
 import {
-  EducationItemSchema,
-  WorkExperienceSchema,
   StepWorkExperienceAndEducationSchema,
+  WorkExperienceSchema,
+  EducationItemSchema,
 } from "@/lib/types";
+
+import { ExperienceForm } from "@/components/form_steps/sub_components/ExperienceForm";
+import { ExperienceDisplay } from "@/components/form_steps/sub_components/ExperienceDisplay";
+import { EducationForm } from "@/components/form_steps/sub_components/EducationForm";
+import { EducationDisplay } from "@/components/form_steps/sub_components/EducationDisplay";
 
 type ExperienceAndEducationData = z.infer<
   typeof StepWorkExperienceAndEducationSchema
@@ -27,17 +25,30 @@ type ExperienceAndEducationData = z.infer<
 export default function Step3() {
   const { data, merge, next, prev } = useFormStore();
 
-  const [local, setLocal] = React.useState(data.experiences);
-  const [localEducation, setLocalEducation] = React.useState(
-    data.education.map((item) => ({
+  const [local, setLocal] = React.useState<
+    z.infer<typeof WorkExperienceSchema>[]
+  >(data.experiences || []);
+  const [localEducation, setLocalEducation] = React.useState<
+    z.infer<typeof EducationItemSchema>[]
+  >(
+    (data.education || []).map((item) => ({
       ...item,
-      startDate: item.startDate ? item.startDate.toString() : "",
-      endDate: item.endDate ? item.endDate.toString() : "",
+      startDate: item.startDate
+        ? new Date(item.startDate).toISOString().split("T")[0]
+        : "",
+      endDate: item.endDate
+        ? new Date(item.endDate).toISOString().split("T")[0]
+        : "",
     }))
   );
 
   const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [editIndex, setEditIndex] = React.useState<number | null>(null);
+  const [editExperienceIndex, setEditExperienceIndex] = React.useState<
+    number | null
+  >(null);
+  const [editEducationIndex, setEditEducationIndex] = React.useState<
+    number | null
+  >(null);
 
   const addExperience = () => {
     const newExperience = {
@@ -50,49 +61,56 @@ export default function Step3() {
       description: "",
     };
     setLocal((p) => [...p, newExperience]);
-    setEditIndex(local.length);
+    setEditExperienceIndex(local.length);
   };
 
-  const removeItem = (idx: number) => {
+  const removeExperience = (idx: number) => {
     const updatedExperiences = local.filter((_, i) => i !== idx);
     setLocal(updatedExperiences);
     merge({ experiences: updatedExperiences });
-    if (editIndex === idx) {
-      setEditIndex(null);
+    if (editExperienceIndex === idx) {
+      setEditExperienceIndex(null);
     }
   };
 
   const addEducation = () => {
-    setLocalEducation((p) => [
-      ...p,
-      { school: "", degree: "", field: "", startDate: "", endDate: "" },
-    ]);
-  };
-
-  const updateEducation = (
-    idx: number,
-    key: string,
-    value: string | boolean
-  ) => {
-    setLocalEducation((p) =>
-      p.map((it, i) => (i === idx ? { ...it, [key]: value } : it))
-    );
+    const newEducation = {
+      school: "",
+      degree: "",
+      field: "",
+      startDate: "",
+      endDate: "",
+    };
+    setLocalEducation((p) => [...p, newEducation]);
+    setEditEducationIndex(localEducation.length);
   };
 
   const removeEducation = (idx: number) => {
-    setLocalEducation((p) => p.filter((_, i) => i !== idx));
+    const updatedEducation = localEducation.filter((_, i) => i !== idx);
+    setLocalEducation(updatedEducation);
+    merge({ education: updatedEducation });
+    if (editEducationIndex === idx) {
+      setEditEducationIndex(null);
+    }
   };
 
   const form = useForm({
     resolver: zodResolver(StepWorkExperienceAndEducationSchema),
-    defaultValues: { experiences: local, education: localEducation },
+    defaultValues: {
+      experiences: local,
+      education: localEducation,
+    },
   });
 
   const onSubmit = () => {
     setSubmitError(null);
 
-    if (editIndex !== null) {
+    if (editExperienceIndex !== null) {
       setSubmitError("Please save or cancel your current experience edit.");
+      return;
+    }
+    if (editEducationIndex !== null) {
+      setSubmitError("Please save or cancel your current education edit.");
       return;
     }
 
@@ -112,6 +130,29 @@ export default function Step3() {
     next();
   };
 
+  const handleRemoveEducation = React.useCallback(
+    (idx: number) => {
+      removeEducation(idx);
+    },
+    [removeEducation]
+  );
+
+  const handleCancelEducation = React.useCallback(() => {
+    setEditEducationIndex(null);
+  }, []);
+
+  const handleSaveEducation = React.useCallback(
+    (idx: number, updatedEdu: z.infer<typeof EducationItemSchema>) => {
+      const updatedEducation = localEducation.map((item, i) =>
+        i === idx ? updatedEdu : item
+      );
+      setLocalEducation(updatedEducation);
+      merge({ education: updatedEducation });
+      setEditEducationIndex(null);
+    },
+    [localEducation, merge]
+  );
+
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <div className="space-y-1">
@@ -125,307 +166,95 @@ export default function Step3() {
 
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Work Experience</h3>
-        <div className="flex justify-end">
-          <Button type="button" variant="outline" onClick={addExperience}>
-            Add role
-          </Button>
-        </div>
-
-        {local.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No experience added yet.
-          </p>
-        )}
-        {local.map((exp, idx) => (
-          <div key={idx} className="space-y-3 rounded-md border p-4">
-            {editIndex === idx ? (
-              <ExperienceForm
-                key={idx}
-                experience={local[idx]}
-                onSave={(updatedExp) => {
-                  const updatedExperiences = local.map((item, i) =>
-                    i === idx ? updatedExp : item
-                  );
-                  setLocal(updatedExperiences);
-                  merge({ experiences: updatedExperiences });
-                  setEditIndex(null);
-                }}
-                onCancel={() => setEditIndex(null)}
-                onRemove={() => removeItem(idx)}
-              />
-            ) : (
-              <ExperienceDisplay
-                key={idx}
-                experience={exp}
-                onEdit={() => setEditIndex(idx)}
-                onRemove={() => removeItem(idx)}
-              />
-            )}
+        <Form {...form}>
+          <div className="flex justify-end">
+            <Button type="button" variant="outline" onClick={addExperience}>
+              Add role
+            </Button>
           </div>
-        ))}
+
+          {local.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No experience added yet.
+            </p>
+          )}
+          {local.map((exp, idx) => (
+            <div key={idx} className="space-y-3 rounded-md border p-4">
+              {editExperienceIndex === idx ? (
+                <ExperienceForm
+                  key={idx}
+                  experience={local[idx]}
+                  onSave={(updatedExp) => {
+                    const updatedExperiences = local.map((item, i) =>
+                      i === idx ? updatedExp : item
+                    );
+                    setLocal(updatedExperiences);
+                    merge({ experiences: updatedExperiences });
+                    setEditExperienceIndex(null);
+                  }}
+                  onCancel={() => setEditExperienceIndex(null)}
+                  onRemove={() => removeExperience(idx)}
+                />
+              ) : (
+                <ExperienceDisplay
+                  key={idx}
+                  experience={exp}
+                  onEdit={() => setEditExperienceIndex(idx)}
+                  onRemove={() => removeExperience(idx)}
+                />
+              )}
+            </div>
+          ))}
+        </Form>
 
         <h3 className="text-lg font-semibold">Education</h3>
-        <div className="flex justify-end">
-          <Button type="button" variant="outline" onClick={addEducation}>
-            Add education
-          </Button>
-        </div>
-
-        {localEducation.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            No education added yet.
-          </p>
-        )}
-        {localEducation.map((ed, idx) => (
-          <div key={idx} className="space-y-3 rounded-md border p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <FormLabel>
-                  School <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input
-                  value={ed.school}
-                  required
-                  onChange={(e) =>
-                    updateEducation(idx, "school", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <FormLabel>
-                  Degree <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input
-                  value={ed.degree}
-                  required
-                  onChange={(e) =>
-                    updateEducation(idx, "degree", e.target.value)
-                  }
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <FormLabel>
-                  Field <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input
-                  value={ed.field}
-                  required
-                  onChange={(e) =>
-                    updateEducation(idx, "field", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <FormLabel>
-                  Start date <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input
-                  value={ed.startDate}
-                  required
-                  onChange={(e) =>
-                    updateEducation(idx, "startDate", e.target.value)
-                  }
-                />
-              </div>
-              <div className="space-y-1.5">
-                <FormLabel>End date</FormLabel>
-                <Input
-                  value={ed.endDate ?? ""}
-                  onChange={(e) =>
-                    updateEducation(idx, "endDate", e.target.value)
-                  }
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => removeEducation(idx)}
-              >
-                Remove
-              </Button>
-            </div>
+        <Form {...form}>
+          <div className="flex justify-end">
+            <Button type="button" variant="outline" onClick={addEducation}>
+              Add education
+            </Button>
           </div>
-        ))}
 
-        {submitError && (
-          <p className="text-sm text-destructive">{submitError}</p>
-        )}
-
-        <div className="flex items-center gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={prev}>
-            Back
-          </Button>
-          <Button type="button" className="ml-auto" onClick={onSubmit}>
-            Next
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Helper Components ---
-
-interface ExperienceFormProps {
-  experience: z.infer<typeof WorkExperienceSchema>;
-  onSave: (updatedExp: z.infer<typeof WorkExperienceSchema>) => void;
-  onCancel: () => void;
-  onRemove: () => void;
-}
-
-function ExperienceForm({
-  experience,
-  onSave,
-  onCancel,
-  onRemove,
-}: ExperienceFormProps) {
-  const form = useForm<z.infer<typeof WorkExperienceSchema>>({
-    resolver: zodResolver(WorkExperienceSchema),
-    defaultValues: experience,
-  });
-
-  const onSubmit = (values: z.infer<typeof WorkExperienceSchema>) => {
-    onSave(values);
-  };
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Company <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input required placeholder="Company Name" {...field} />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Title <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input required placeholder="Job Title" {...field} />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Location <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input required placeholder="City, Country" {...field} />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="startDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Start Date <span className="text-red-500">*</span>
-                </FormLabel>
-                <Input required type="date" {...field} />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="endDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>End Date</FormLabel>
-                <Input type="date" {...field} />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <Input
-                placeholder="Responsibilities and achievements"
-                {...field}
-              />
-              <FormMessage />
-            </FormItem>
+          {localEducation.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              No education added yet.
+            </p>
           )}
-        />
-        <div className="flex justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={onRemove}>
-            Remove
-          </Button>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">Save</Button>
-        </div>
-      </form>
-    </Form>
-  );
-}
+          {localEducation.map((ed, idx) => (
+            <div key={idx} className="space-y-3 rounded-md border p-4">
+              {editEducationIndex === idx ? (
+                <EducationForm
+                  key={idx}
+                  education={localEducation[idx]}
+                  onSave={(updatedEdu) => handleSaveEducation(idx, updatedEdu)}
+                  onCancel={handleCancelEducation}
+                  onRemove={() => handleRemoveEducation(idx)}
+                />
+              ) : (
+                <EducationDisplay
+                  key={idx}
+                  education={ed}
+                  onEdit={() => setEditEducationIndex(idx)}
+                  onRemove={() => removeEducation(idx)}
+                />
+              )}
+            </div>
+          ))}
 
-interface ExperienceDisplayProps {
-  experience: z.infer<typeof WorkExperienceSchema>;
-  onEdit: () => void;
-  onRemove: () => void;
-}
+          {submitError && (
+            <p className="text-sm text-destructive">{submitError}</p>
+          )}
 
-function ExperienceDisplay({
-  experience,
-  onEdit,
-  onRemove,
-}: ExperienceDisplayProps) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h4 className="font-semibold">
-          {experience.title} at {experience.company}
-        </h4>
-        <div className="flex gap-2">
-          <Button type="button" variant="ghost" size="sm" onClick={onEdit}>
-            Edit
-          </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={onRemove}>
-            Remove
-          </Button>
-        </div>
+          <div className="flex items-center gap-3 pt-2">
+            <Button type="button" variant="outline" onClick={prev}>
+              Back
+            </Button>
+            <Button type="button" className="ml-auto" onClick={onSubmit}>
+              Next
+            </Button>
+          </div>
+        </Form>
       </div>
-      <p className="text-sm text-muted-foreground">{experience.location}</p>
-      <p className="text-sm text-muted-foreground">
-        {experience.startDate} - {experience.endDate || "Present"}
-      </p>
-      {experience.description && (
-        <p className="text-sm text-muted-foreground">
-          {experience.description}
-        </p>
-      )}
     </div>
   );
 }

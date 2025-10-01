@@ -6,13 +6,15 @@ export type FormStep =
   | "personal"
   | "skills_languages"
   | "work_experience"
-  | "interests_hobbies";
+  | "interests_hobbies"
+  | "address";
 
 const stepsOrder: FormStep[] = [
   "personal",
   "skills_languages",
   "work_experience",
   "interests_hobbies",
+  "address",
 ];
 
 const emptyState: ResumeFormData = {

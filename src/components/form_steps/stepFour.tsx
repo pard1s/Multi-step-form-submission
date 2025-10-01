@@ -63,8 +63,8 @@ export default function Step4() {
     setSubmitError(null);
 
     const parsed = StepInterestsHobbiesSchema.safeParse({
-      interests: data.interests,
-      hobbies: data.hobbies,
+      interests: form.getValues("interests"),
+      hobbies: form.getValues("hobbies"),
     });
     if (!parsed.success) {
       form.trigger(); // Trigger field-level validations
