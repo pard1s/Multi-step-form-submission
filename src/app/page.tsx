@@ -39,10 +39,8 @@ export default function Home() {
         return Step3;
       case "interests_hobbies":
         return Step4;
-      case "education":
-        return Step5;
       default:
-        return Step1;
+        return Step5;
     }
   }, [stepIndex, steps]);
 

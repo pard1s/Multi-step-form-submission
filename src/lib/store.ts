@@ -6,15 +6,13 @@ export type FormStep =
   | "personal"
   | "skills_languages"
   | "work_experience"
-  | "interests_hobbies"
-  | "education";
+  | "interests_hobbies";
 
 const stepsOrder: FormStep[] = [
   "personal",
   "skills_languages",
   "work_experience",
   "interests_hobbies",
-  "education",
 ];
 
 const emptyState: ResumeFormData = {
@@ -58,7 +56,7 @@ export const useFormStore = create<FormStore>()(
     data: {
       ...emptyState,
       ...(typeof window !== "undefined" &&
-        JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")), //saving and reading setps data to avoid data loss during page refresh
+        JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}")), //saving and reading steps data to avoid data loss during page refresh
     },
     stepIndex: 0,
     steps: stepsOrder,

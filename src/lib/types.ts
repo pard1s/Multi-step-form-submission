@@ -12,20 +12,41 @@ export const LanguageSchema = z.object({
 });
 
 export const WorkExperienceSchema = z.object({
-  company: z.string().min(1),
-  title: z.string().min(1),
-  location: z.string().min(1),
-  startDate: z.string().min(1),
+  company: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  title: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  location: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  startDate: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
   endDate: z.string().optional(),
   current: z.boolean().optional(),
   description: z.string().optional(),
 });
 
 export const EducationItemSchema = z.object({
-  school: z.string().min(1),
-  degree: z.string().min(1),
-  field: z.string().min(1),
-  startDate: z.string().min(1),
+  school: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  degree: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  field: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  startDate: z.string(),
   endDate: z.string().optional(), // empty -> present
 });
 
@@ -34,8 +55,14 @@ const phoneRegex = new RegExp(
 );
 
 export const ResumeFormSchema = z.object({
-  firstName: z.string().min(1),
-  lastName: z.string().min(1),
+  firstName: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
+  lastName: z.string({
+    error: (iss) =>
+      iss.input === undefined ? "Field is required." : "Invalid input.",
+  }),
   email: z.email(),
   phone: z.string().regex(phoneRegex, "Invalid Number!"),
 
@@ -70,12 +97,9 @@ export const StepPersonalSchema = ResumeFormSchema.pick({
   phone: true,
 });
 
-export const StepAddressSchema = ResumeFormSchema.pick({
-  street: true,
-  city: true,
-  state: true,
-  postalCode: true,
-  country: true,
+export const StepWorkExperienceAndEducationSchema = ResumeFormSchema.pick({
+  experiences: true,
+  education: true,
 });
 
 export const StepSkillsLangSchema = ResumeFormSchema.pick({
@@ -93,10 +117,10 @@ export const StepInterestsHobbiesSchema = z.object({
   hobbies: z.array(z.string()).max(30).default([]),
 });
 
-export const StepWorkExperienceSchema = ResumeFormSchema.pick({
-  experiences: true,
-});
-
-export const StepEducationSchema = ResumeFormSchema.pick({
-  education: true,
+export const StepAddressSchema = ResumeFormSchema.pick({
+  street: true,
+  city: true,
+  state: true,
+  postalCode: true,
+  country: true,
 });

@@ -15,11 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormStore } from "@/lib/store";
-import {
-  StepEducationSchema,
-  EducationItemSchema,
-  StepAddressSchema,
-} from "@/lib/types";
+import { StepAddressSchema } from "@/lib/types";
 import {
   Dialog,
   DialogContent,
@@ -31,7 +27,6 @@ import {
 } from "@/components/ui/dialog";
 
 type AddressData = z.infer<typeof StepAddressSchema>;
-type EducationData = { education: z.infer<typeof EducationItemSchema>[] };
 
 export default function Step5() {
   const { data, merge, prev } = useFormStore();
@@ -47,42 +42,6 @@ export default function Step5() {
     },
   });
 
-  const eduForm = useForm<EducationData>({
-    resolver: zodResolver(StepEducationSchema),
-    defaultValues: { education: data.education || [] },
-  });
-
-  const [education, setEducation] = React.useState<
-    z.infer<typeof EducationItemSchema>[]
-  >(
-    data.education.map((item) => ({
-      ...item,
-      startDate: item.startDate ? item.startDate.toString() : "",
-      endDate: item.endDate ? item.endDate.toString() : "",
-    }))
-  );
-
-  const addEducation = () => {
-    setEducation((p) => [
-      ...p,
-      { school: "", degree: "", field: "", startDate: "", endDate: "" },
-    ]);
-  };
-
-  const updateEducation = (
-    idx: number,
-    key: string,
-    value: string | boolean
-  ) => {
-    setEducation((p) =>
-      p.map((it, i) => (i === idx ? { ...it, [key]: value } : it))
-    );
-  };
-
-  const removeEducation = (idx: number) => {
-    setEducation((p) => p.filter((_, i) => i !== idx));
-  };
-
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -92,23 +51,10 @@ export default function Step5() {
 
     const addressValues = addressForm.getValues();
     const parsedAddress = StepAddressSchema.safeParse(addressValues);
-    const parsedEdu = StepEducationSchema.safeParse({
-      education: education.map((item) => ({
-        ...item,
-        startDate: item.startDate,
-        endDate: item.endDate,
-      })),
-    });
 
     if (!parsedAddress.success) {
       addressForm.trigger();
       setError("Please correct the address details.");
-      setIsLoading(false);
-      return;
-    }
-
-    if (!parsedEdu.success) {
-      setError("Please ensure all education fields are valid.");
       setIsLoading(false);
       return;
     }
@@ -120,7 +66,6 @@ export default function Step5() {
       state: parsedAddress.data.state,
       postalCode: parsedAddress.data.postalCode,
       country: parsedAddress.data.country,
-      education: parsedEdu.data.education,
     };
     merge(finalData);
 
@@ -164,11 +109,9 @@ export default function Step5() {
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6">
       <div className="space-y-1">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Address & Education
-        </h2>
+        <h2 className="text-2xl font-semibold tracking-tight">Address</h2>
         <p className="text-sm text-muted-foreground">
-          Confirm address and list schools.
+          Confirm your address details.
         </p>
       </div>
 
@@ -257,108 +200,6 @@ export default function Step5() {
                 )}
               />
             </div>
-          </form>
-        </Form>
-
-        <Form {...eduForm}>
-          <form className="space-y-4" onSubmit={(e) => e.preventDefault()}>
-            <div className="flex justify-end">
-              <Button type="button" variant="outline" onClick={addEducation}>
-                Add education
-              </Button>
-            </div>
-
-            {education.length === 0 && (
-              <p className="text-sm text-muted-foreground">
-                No education added yet.
-              </p>
-            )}
-
-            {education.map((ed, idx) => (
-              <div key={idx} className="space-y-3 rounded-md border p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <FormLabel>
-                      School <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Input
-                      value={ed.school}
-                      required
-                      onChange={(e) =>
-                        updateEducation(idx, "school", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <FormLabel>
-                      Degree <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Input
-                      value={ed.degree}
-                      required
-                      onChange={(e) =>
-                        updateEducation(idx, "degree", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div className="space-y-1.5">
-                    <FormLabel>
-                      Field <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Input
-                      value={ed.field}
-                      required
-                      onChange={(e) =>
-                        updateEducation(idx, "field", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <FormLabel>
-                      Start date <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <Input
-                      value={ed.startDate}
-                      required
-                      onChange={(e) =>
-                        updateEducation(idx, "startDate", e.target.value)
-                      }
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <FormLabel>End date</FormLabel>
-                    <Input
-                      value={ed.endDate ?? ""}
-                      onChange={(e) =>
-                        updateEducation(idx, "endDate", e.target.value)
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeEducation(idx)}
-                  >
-                    Remove
-                  </Button>
-                </div>
-              </div>
-            ))}
-
-            <FormField
-              control={eduForm.control}
-              name="education"
-              render={() => (
-                <FormItem>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </form>
         </Form>
 
