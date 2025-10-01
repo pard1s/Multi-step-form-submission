@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { WorkExperienceSchema } from "@/lib/types";
 import { DatePicker } from "@/components/ui/date-picker";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 interface ExperienceFormProps {
   experience: z.infer<typeof WorkExperienceSchema>;
@@ -35,10 +35,10 @@ export function ExperienceForm({
     defaultValues: {
       ...experience,
       startDate: experience.startDate
-        ? format(new Date(experience.startDate), "yyyy-MM-dd")
+        ? format(parseISO(experience.startDate), "yyyy-MM-dd")
         : "",
       endDate: experience.endDate
-        ? format(new Date(experience.endDate), "yyyy-MM-dd")
+        ? format(parseISO(experience.endDate), "yyyy-MM-dd")
         : "",
     },
   });
@@ -101,9 +101,11 @@ export function ExperienceForm({
                   Start Date <span className="text-red-500">*</span>
                 </FormLabel>
                 <DatePicker
-                  value={field.value ? new Date(field.value) : undefined}
+                  value={field.value ? parseISO(field.value) : undefined}
                   onChange={(date) =>
-                    field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    field.onChange(
+                      date ? format(date, "yyyy-MM-dd") : undefined
+                    )
                   }
                   placeholder="Select start date"
                 />
@@ -118,13 +120,15 @@ export function ExperienceForm({
               <FormItem>
                 <FormLabel>End Date</FormLabel>
                 <DatePicker
-                  value={field.value ? new Date(field.value) : undefined}
+                  value={field.value ? parseISO(field.value) : undefined}
                   onChange={(date) =>
-                    field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    field.onChange(
+                      date ? format(date, "yyyy-MM-dd") : undefined
+                    )
                   }
                   placeholder="Select end date"
                   disabled={(date) =>
-                    field.value ? date < new Date(field.value) : false
+                    field.value ? date < parseISO(field.value) : false
                   }
                 />
                 <FormMessage />

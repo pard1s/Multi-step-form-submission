@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/form";
 import { EducationItemSchema } from "@/lib/types";
 import { DatePicker } from "@/components/ui/date-picker";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 
 interface EducationFormProps {
   education: z.infer<typeof EducationItemSchema>;
@@ -35,10 +35,10 @@ export function EducationForm({
     defaultValues: {
       ...education,
       startDate: education.startDate
-        ? format(new Date(education.startDate), "yyyy-MM-dd")
+        ? format(parseISO(education.startDate), "yyyy-MM-dd")
         : "",
       endDate: education.endDate
-        ? format(new Date(education.endDate), "yyyy-MM-dd")
+        ? format(parseISO(education.endDate), "yyyy-MM-dd")
         : "",
     },
   });
@@ -105,9 +105,11 @@ export function EducationForm({
                   Start Date <span className="text-red-500">*</span>
                 </FormLabel>
                 <DatePicker
-                  value={field.value ? new Date(field.value) : undefined}
+                  value={field.value ? parseISO(field.value) : undefined}
                   onChange={(date) =>
-                    field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    field.onChange(
+                      date ? format(date, "yyyy-MM-dd") : undefined
+                    )
                   }
                   placeholder="Select start date"
                 />
@@ -122,13 +124,15 @@ export function EducationForm({
               <FormItem>
                 <FormLabel>End Date</FormLabel>
                 <DatePicker
-                  value={field.value ? new Date(field.value) : undefined}
+                  value={field.value ? parseISO(field.value) : undefined}
                   onChange={(date) =>
-                    field.onChange(date ? format(date, "yyyy-MM-dd") : "")
+                    field.onChange(
+                      date ? format(date, "yyyy-MM-dd") : undefined
+                    )
                   }
                   placeholder="Select end date"
                   disabled={(date) =>
-                    field.value ? date < new Date(field.value) : false
+                    field.value ? date < parseISO(field.value) : false
                   }
                 />
                 <FormMessage />
