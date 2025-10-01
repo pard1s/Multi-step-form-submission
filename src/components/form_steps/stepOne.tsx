@@ -61,9 +61,11 @@ export default function Step1() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First name</FormLabel>
+                  <FormLabel>
+                    First name <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Jane" {...field} />
+                    <Input placeholder="Jane" required {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -75,9 +77,11 @@ export default function Step1() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last name</FormLabel>
+                  <FormLabel>
+                    Last name <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input placeholder="Doe" {...field} />
+                    <Input placeholder="Doe" required {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -90,11 +94,14 @@ export default function Step1() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>
+                  Email <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="jane@example.com"
                     type="email"
+                    required
                     {...field}
                   />
                 </FormControl>
@@ -108,9 +115,16 @@ export default function Step1() {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone</FormLabel>
+                <FormLabel>
+                  Phone <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="+1 555 123 4567" type="tel" {...field} />
+                  <Input
+                    placeholder="+1 555 123 4567"
+                    type="tel"
+                    required
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

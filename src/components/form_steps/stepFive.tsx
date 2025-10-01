@@ -142,8 +142,6 @@ export default function Step5() {
       }
 
       const result = await response.json();
-      console.log("Form submitted successfully:", result);
-      console.log("Attempting to open success dialog.");
       setIsSuccessDialogOpen(true);
     } catch (err) {
       console.error("Network error or unexpected:", err);
@@ -185,9 +183,11 @@ export default function Step5() {
                 name="street"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Street</FormLabel>
+                    <FormLabel>
+                      Street <span className="text-red-500">*</span>{" "}
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="123 Main St" {...field} />
+                      <Input placeholder="123 Main St" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -198,9 +198,11 @@ export default function Step5() {
                 name="city"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>City</FormLabel>
+                    <FormLabel>
+                      City <span className="text-red-500">*</span>{" "}
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="City" {...field} />
+                      <Input placeholder="City" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -213,9 +215,12 @@ export default function Step5() {
                 name="state"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>State/Province</FormLabel>
+                    <FormLabel>
+                      State/Province{" "}
+                      <span className="text-red-500">*</span>{" "}
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="State" {...field} />
+                      <Input placeholder="State" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -226,9 +231,11 @@ export default function Step5() {
                 name="postalCode"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Postal code</FormLabel>
+                    <FormLabel>
+                      Postal code <span className="text-red-500">*</span>{" "}
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="12345" {...field} />
+                      <Input placeholder="12345" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -239,9 +246,11 @@ export default function Step5() {
                 name="country"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Country</FormLabel>
+                    <FormLabel>
+                      Country <span className="text-red-500">*</span>{" "}
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Country" {...field} />
+                      <Input placeholder="Country" required {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -269,18 +278,24 @@ export default function Step5() {
               <div key={idx} className="space-y-3 rounded-md border p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <FormLabel>School</FormLabel>
+                    <FormLabel>
+                      School <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Input
                       value={ed.school}
+                      required
                       onChange={(e) =>
                         updateEducation(idx, "school", e.target.value)
                       }
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <FormLabel>Degree</FormLabel>
+                    <FormLabel>
+                      Degree <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Input
                       value={ed.degree}
+                      required
                       onChange={(e) =>
                         updateEducation(idx, "degree", e.target.value)
                       }
@@ -289,18 +304,24 @@ export default function Step5() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1.5">
-                    <FormLabel>Field</FormLabel>
+                    <FormLabel>
+                      Field <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Input
                       value={ed.field}
+                      required
                       onChange={(e) =>
                         updateEducation(idx, "field", e.target.value)
                       }
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <FormLabel>Start date</FormLabel>
+                    <FormLabel>
+                      Start date <span className="text-red-500">*</span>
+                    </FormLabel>
                     <Input
                       value={ed.startDate}
+                      required
                       onChange={(e) =>
                         updateEducation(idx, "startDate", e.target.value)
                       }

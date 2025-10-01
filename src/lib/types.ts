@@ -39,11 +39,11 @@ export const ResumeFormSchema = z.object({
   email: z.email(),
   phone: z.string().regex(phoneRegex, "Invalid Number!"),
 
-  street: z.string().min(1).optional(),
-  city: z.string().min(1).optional(),
-  state: z.string().min(1).optional(),
-  postalCode: z.string().min(1).optional(),
-  country: z.string().min(1).optional(),
+  street: z.string(),
+  city: z.string(),
+  state: z.string(),
+  postalCode: z.string(),
+  country: z.string(),
 
   website: z.url().optional(),
   facebook: z.url().optional(),
@@ -81,6 +81,11 @@ export const StepAddressSchema = ResumeFormSchema.pick({
 export const StepSkillsLangSchema = ResumeFormSchema.pick({
   skills: true,
   languages: true,
+}).extend({
+  skills: z.array(SkillSchema).min(3, "Please add at least three skills."),
+  languages: z
+    .array(LanguageSchema)
+    .min(1, "Please add at least one language."),
 });
 
 export const StepInterestsHobbiesSchema = z.object({

@@ -165,8 +165,10 @@ function ExperienceForm({
             name="company"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Company</FormLabel>
-                <Input placeholder="Company Name" {...field} />
+                <FormLabel>
+                  Company <span className="text-red-500">*</span>
+                </FormLabel>
+                <Input required placeholder="Company Name" {...field} />
                 <FormMessage />
               </FormItem>
             )}
@@ -176,8 +178,10 @@ function ExperienceForm({
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title</FormLabel>
-                <Input placeholder="Job Title" {...field} />
+                <FormLabel>
+                  Title <span className="text-red-500">*</span>
+                </FormLabel>
+                <Input required placeholder="Job Title" {...field} />
                 <FormMessage />
               </FormItem>
             )}
@@ -189,8 +193,10 @@ function ExperienceForm({
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location</FormLabel>
-                <Input placeholder="City, Country" {...field} />
+                <FormLabel>
+                  Location <span className="text-red-500">*</span>
+                </FormLabel>
+                <Input required placeholder="City, Country" {...field} />
                 <FormMessage />
               </FormItem>
             )}
@@ -200,8 +206,10 @@ function ExperienceForm({
             name="startDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <Input type="date" {...field} />
+                <FormLabel>
+                  Start Date <span className="text-red-500">*</span>
+                </FormLabel>
+                <Input required type="date" {...field} />
                 <FormMessage />
               </FormItem>
             )}

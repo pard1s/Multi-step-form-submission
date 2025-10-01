@@ -5,6 +5,13 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormField,
   FormItem,
@@ -110,26 +117,32 @@ export default function Step2() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-3">
-            <h3 className="text-sm font-medium">Add a skill</h3>
+            <h3 className="text-sm font-medium">
+              Add a skill <span className="text-red-500">*</span>
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Input
                 placeholder="Skill name"
                 value={skillName}
                 onChange={(e) => setSkillName(e.target.value)}
               />
-              <select
-                className="h-9 rounded-md border bg-transparent px-3 text-sm"
+              <Select
                 value={skillLevel}
-                onChange={(e) =>
-                  setSkillLevel(e.target.value as (typeof skillLevels)[number])
+                onValueChange={(value: (typeof skillLevels)[number]) =>
+                  setSkillLevel(value)
                 }
               >
-                {skillLevels.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a level" />
+                </SelectTrigger>
+                <SelectContent>
+                  {skillLevels.map((l) => (
+                    <SelectItem key={l} value={l}>
+                      {l}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button type="button" onClick={addSkill}>
                 Add skill
               </Button>
@@ -173,28 +186,32 @@ export default function Step2() {
           </div>
 
           <div className="space-y-3">
-            <h3 className="text-sm font-medium">Add a language</h3>
+            <h3 className="text-sm font-medium">
+              Add a language <span className="text-red-500">*</span>
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Input
                 placeholder="Language"
                 value={langName}
                 onChange={(e) => setLangName(e.target.value)}
               />
-              <select
-                className="h-9 rounded-md border bg-transparent px-3 text-sm"
+              <Select
                 value={langProf}
-                onChange={(e) =>
-                  setLangProf(
-                    e.target.value as (typeof languageProficiency)[number]
-                  )
+                onValueChange={(value: (typeof languageProficiency)[number]) =>
+                  setLangProf(value)
                 }
               >
-                {languageProficiency.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select proficiency" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languageProficiency.map((p) => (
+                    <SelectItem key={p} value={p}>
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Button type="button" onClick={addLanguage}>
                 Add language
               </Button>
