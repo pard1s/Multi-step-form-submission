@@ -14,7 +14,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFormStore } from "@/lib/store";
-import { StepWorkExperienceSchema, WorkExperienceSchema } from "@/lib/types";
+import { WorkExperienceSchema } from "@/lib/types";
 
 export default function Step3() {
   const { data, merge, next, prev } = useFormStore();

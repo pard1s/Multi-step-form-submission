@@ -66,10 +66,10 @@ export async function POST(req: Request) {
     console.log("Email sent successfully to:", data.email);
 
     return NextResponse.json({ submission }, { status: 201 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error submitting form:", error);
 
-    if (error.code === "P2002") {
+    if (error instanceof Error && (error as any).code === "P2002") {
       return NextResponse.json(
         { message: "A submission with this email already exists." },
         { status: 409 } // 409 Conflict

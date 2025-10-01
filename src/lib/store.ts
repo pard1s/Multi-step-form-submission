@@ -54,7 +54,7 @@ type FormStore = {
 const STORAGE_KEY = "multistep_form_data";
 
 export const useFormStore = create<FormStore>()(
-  immer((set, get) => ({
+  immer((set, _get) => ({
     data: {
       ...emptyState,
       ...(typeof window !== "undefined" &&

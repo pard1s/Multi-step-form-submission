@@ -69,7 +69,11 @@ export default function Step5() {
     ]);
   };
 
-  const updateEducation = (idx: number, key: string, value: any) => {
+  const updateEducation = (
+    idx: number,
+    key: string,
+    value: string | boolean
+  ) => {
     setEducation((p) =>
       p.map((it, i) => (i === idx ? { ...it, [key]: value } : it))
     );
