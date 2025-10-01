@@ -69,7 +69,11 @@ export async function POST(req: Request) {
   } catch (error: unknown) {
     console.error("Error submitting form:", error);
 
-    if (error instanceof Error && (error as any).code === "P2002") {
+    interface PrismaError extends Error {
+      code?: string;
+    }
+
+    if (error instanceof Error && (error as PrismaError).code === "P2002") {
       return NextResponse.json(
         { message: "A submission with this email already exists." },
         { status: 409 } // 409 Conflict
